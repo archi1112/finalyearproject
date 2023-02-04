@@ -3,6 +3,7 @@ from Employee_attendance.detection import FaceRecognition
 from .forms import *
 from django.contrib import messages
 
+
 faceRecognition = FaceRecognition()
 
 def home(request):
@@ -33,6 +34,7 @@ def addFace(face_id):
 
 def login(request):
     face_id = faceRecognition.recognizeFace()
+    faceRecognition.faceDetect(face_id)
     print(face_id)
     return redirect('greeting' ,str(face_id))
 

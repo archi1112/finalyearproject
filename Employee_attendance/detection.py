@@ -1,4 +1,7 @@
+import numpy as np
 import cv2
+# from sklearn.externals 
+
 import os
 # import sqlite3
 import numpy as np
@@ -9,42 +12,59 @@ detector = cv2.CascadeClassifier(BASE_DIR+'/Employee_attendance/haarcascade_fron
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 
-
 class FaceRecognition:    
 
-    def faceDetect(self, Entry1,):
+    def faceDetect(self, Entry1):
         face_id = Entry1
-        cam = cv2.VideoCapture(0)
-        
+        # Load the Caffe face detection model
+        modelFile = "Employee_attendance/res10_300x300_ssd_iter_140000.caffemodel"
+        configFile = "Employee_attendance/deploy.prototxt.txt"
+        net = cv2.dnn.readNetFromCaffe(configFile, modelFile)
 
-        count = 0
+        # Start the video capture
+        cap = cv2.VideoCapture(0)
 
-        while(True):
+        face_count = 0
 
-            ret, img = cam.read()
-            # img = cv2.flip(img, -1) # flip video image vertically
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = detector.detectMultiScale(gray, 1.3, 5)
+        while True:
+            # Read a frame from the camera
+            ret, frame = cap.read()
+            
+            # Check if the frame is valid
+            if frame is None:
+                break
+            
+            # Create a 4D blob from the frame
+            blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), [104, 117, 123], False, False)
 
-            for (x,y,w,h) in faces:
+            # Pass the blob through the network and get the detections
+            net.setInput(blob)
+            detections = net.forward()
 
-                cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
-                count += 1
+            # Loop over the detections and draw a rectangle around the face
+            for i in range(detections.shape[2]):
+                confidence = detections[0, 0, i, 2]
+                if confidence > 0.7: # increase the confidence threshold
+                    x1 = int(detections[0, 0, i, 3] * frame.shape[1])
+                    y1 = int(detections[0, 0, i, 4] * frame.shape[0])
+                    x2 = int(detections[0, 0, i, 5] * frame.shape[1])
+                    y2 = int(detections[0, 0, i, 6] * frame.shape[0])
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                    
+                    face = frame[y1:y2, x1:x2]
+                    
+                    # Check if the region of interest is within the frame
+                    if face.shape[0] > 0 and face.shape[1] > 0:
+                        face_count += 1
+                        cv2.imwrite(BASE_DIR+'/Employee_attendance/dataset/User.' + str(face_id) + '.' + str(face_count) + ".jpg", face)
 
-                # Save the captured image into the datasets folder
-                cv2.imwrite(BASE_DIR+'/Employee_attendance/dataset/User.' + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-
-                cv2.imshow('Register Face', img)
-
+            # Show the output frame
+            cv2.imshow("Face Detection", frame) 
             k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
             if k == 27:
                 break
-            elif count >= 30: # Take 30 face sample and stop video
-                break
-    
-    
-        cam.release()
-        cv2.destroyAllWindows()
+            elif face_count >= 30: # Take 30 face sample and stop video
+                 break
 
     
     def trainFace(self):
