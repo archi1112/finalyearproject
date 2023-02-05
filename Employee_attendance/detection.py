@@ -15,7 +15,7 @@ recognizer = cv2.face.LBPHFaceRecognizer_create()
 class FaceRecognition:    
 
     def faceDetect(self, Entry1):
-        face_id = Entry1
+        emp_id = Entry1
         # Load the Caffe face detection model
         modelFile = "Employee_attendance/res10_300x300_ssd_iter_140000.caffemodel"
         configFile = "Employee_attendance/deploy.prototxt.txt"
@@ -56,7 +56,7 @@ class FaceRecognition:
                     # Check if the region of interest is within the frame
                     if face.shape[0] > 0 and face.shape[1] > 0:
                         face_count += 1
-                        cv2.imwrite(BASE_DIR+'/Employee_attendance/dataset/User.' + str(face_id) + '.' + str(face_count) + ".jpg", face)
+                        cv2.imwrite(BASE_DIR+'/Employee_attendance/dataset/User.' + str(emp_id) + '.' + str(face_count) + ".jpg", face)
 
             # Show the output frame
             cv2.imshow("Face Detection", frame) 
@@ -83,13 +83,13 @@ class FaceRecognition:
                 PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
                 img_numpy = np.array(PIL_img,'uint8')
 
-                face_id = int(os.path.split(imagePath)[-1].split(".")[1])
-                print("face_id",face_id)
+                emp_id = int(os.path.split(imagePath)[-1].split(".")[1])
+                print("emp_id",emp_id)
                 faces = detector.detectMultiScale(img_numpy)
 
                 for (x,y,w,h) in faces:
                     faceSamples.append(img_numpy[y:y+h,x:x+w])
-                    ids.append(face_id)
+                    ids.append(emp_id)
 
             return faceSamples,ids
 
@@ -135,7 +135,7 @@ class FaceRecognition:
 
                 cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
 
-                face_id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+                emp_id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
 
                 # Check if confidence is less then 100 ==> "0" is perfect match 
                 if (confidence < 100):
@@ -157,5 +157,5 @@ class FaceRecognition:
         print("\n Exiting Program")
         cam.release()
         cv2.destroyAllWindows()
-        print(face_id)
-        return face_id
+        print(emp_id)
+        return emp_id

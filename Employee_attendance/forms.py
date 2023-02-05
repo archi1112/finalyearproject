@@ -1,11 +1,11 @@
 from django import forms
 from .models import *
 
-class ResgistrationForm(forms.ModelForm):
+class EmployeeForm(forms.ModelForm):
     class Meta:
-        model = UserProfile
+        model = Employee
         fields = [
-            'face_id',
+            'emp_id',
             'name',
             'address',
             'phone',
@@ -15,14 +15,15 @@ class ResgistrationForm(forms.ModelForm):
             # 'image'
             ]
     
-class Attendance(forms.ModelForm):
+class AttendanceForm(forms.ModelForm):
     class Meta:
-        model=attend
+        model=Attendance
         fields=[
-            'face_id',
+            'emp_id',
+            'status'
         ]
 
-class Admin(forms.ModelForm):
+class AdminForm(forms.ModelForm):
     class Meta:
         model=Admin
         fields=[
