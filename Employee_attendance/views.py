@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect
 from Employee_attendance.detection import FaceRecognition
 from .forms import *
-from django.contrib import messages
+from django.contrib import messages,auth
+from django.views.decorators.csrf import csrf_protect
 
 
 faceRecognition = FaceRecognition()

@@ -20,5 +20,12 @@ class Attendance(forms.ModelForm):
         model=attend
         fields=[
             'face_id',
-            'present'
+        ]
+
+class Admin(forms.ModelForm):
+    class Meta:
+        model=Admin
+        fields=[
+            'username',
+            'password'
         ]

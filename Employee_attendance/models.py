@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_save
+from django import forms
 
 class UserProfile(models.Model):
     face_id = models.IntegerField(primary_key=True)
@@ -13,5 +14,10 @@ class UserProfile(models.Model):
 
 
 class attend(models.Model):
-    face_id=models.ForeignKey(UserProfile,on_delete=models.CASCADE,)
-    present=models.BooleanField()
+    face_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+class Admin(models.Model):
+    username=models.models.CharField( max_length=50)
+    password=models.CharField(max_length=20)
+
+
