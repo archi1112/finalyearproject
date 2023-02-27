@@ -33,15 +33,18 @@
     </style>
   </head>
   <body>
+    {% extends 'base.html'%}
+    {%block content%}
     <div class="form-container">
-      <form action="#" method='post'>
+      <form action=" " method='post'>
         {% csrf_token %}
         <label for="username">Username:</label><br>
         <input type="text" id="username" name="username"><br>
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br><br>
-        <input type="submit" value="admin_login">
+        <input type="submit" value="admin_login"></input>
       </form> 
+      {% endblock content%}
     </div>
   </body>
 </html>

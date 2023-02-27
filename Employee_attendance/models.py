@@ -18,7 +18,7 @@ class Employee(models.Model):
 
 class Attendance(models.Model):
     emp_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    date=models.DateTimeField(auto_now_add=True)
+    date=models.DateField(auto_now_add=True)
     status=models.BooleanField(default=False)
     objects=models.Manager()
 

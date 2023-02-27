@@ -30,3 +30,7 @@ class AdminForm(forms.ModelForm):
             'username',
             'password'
         ]
+    
+    
+class DateForm(forms.Form):
+    date = forms.DateField(label='Enter date')

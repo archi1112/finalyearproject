@@ -2,6 +2,8 @@ from django.shortcuts import render,redirect
 from .forms import *
 from django.contrib import messages,auth
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+
 
 def admin_signup(request):
     if request.method == 'POST':
@@ -26,12 +28,16 @@ def admin_login(request):
             admin = Admin.objects.get(username=username)
             if admin.password == password:
                 request.session['admin_id'] = admin.id
-                return redirect('admin_home')
+                return redirect('admin_home',username)
             else:
                 messages.error(request, 'Invalid email or password')
         except Admin.DoesNotExist:
             messages.error(request, 'Invalid email or password')
     return render(request, 'admin_login.html')
 
-def admin_home(request):
-    return render(request,'admin_home.html')
+def admin_home(request,username):
+    username = username
+    context ={
+        'user' : Admin.objects.get(username = username)
+    }
+    return render(request,'admin_home.html',context=context)

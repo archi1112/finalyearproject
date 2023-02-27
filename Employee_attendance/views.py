@@ -1,15 +1,17 @@
-from django.shortcuts import render,redirect
-from Employee_attendance.detection import FaceRecognition
+from django.shortcuts import render, redirect
+from .detection import FaceRecognition
+from .attendance_views import AttendanceManager
 from .forms import *
-from django.contrib import messages,auth
-from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
 from .admin_views import *
 
 
 faceRecognition = FaceRecognition()
+attendance = Attendance()
+
 
 def home(request):
-    return render(request,'home.html')
+    return render(request, 'home.html')
 
 
 def register(request):
@@ -18,15 +20,16 @@ def register(request):
         if form.is_valid():
             form.save()
             print("IN HERE")
-            messages.success(request,"SuceessFully registered")
+            messages.success(request, "SuceessFully registered")
             addFace(request.POST['emp_id'])
-            redirect('home')
+            return redirect('home')
         else:
-            messages.error(request,"Account registered failed")
+            messages.error(request, "Account registered failed")
     else:
         form = EmployeeForm()
 
-    return render(request, 'employee_login.html', {'form':form})
+    return render(request, 'register.html', {'form': form})
+
 
 def addFace(emp_id):
     emp_id = emp_id
@@ -34,16 +37,18 @@ def addFace(emp_id):
     faceRecognition.trainFace()
     return redirect('/')
 
-def login(request):
+
+def scan(request):
     emp_id = faceRecognition.recognizeFace()
-    faceRecognition.faceDetect(emp_id)
     print(emp_id)
-    return redirect('greeting' ,str(emp_id))
+    AttendanceManager().markAttendance(emp_id)
+    print("attendance marked")
+    return redirect('greeting', str(emp_id))
 
-def Greeting(request,emp_id):
+
+def Greeting(request, emp_id):
     emp_id = int(emp_id)
-    context ={
-        'user' : Employee.objects.get(emp_id = emp_id)
+    context = {
+        'user': Employee.objects.get(emp_id=emp_id)
     }
-    return render(request,'greeting.html',context=context)
-
+    return render(request, 'greeting.html', context=context)

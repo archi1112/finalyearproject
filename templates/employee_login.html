@@ -7,21 +7,16 @@
 </head>
 </head>
 <body>
-<h1>Register Page</h1>
-<form action="" method="post">
-    {% csrf_token %}
-    <h3>Register form</h3><br>
-    
-   <input type="text" placeholder="Full name"><br>
-   <input type="number" name="face_id" placeholder="Number"><br>
-   <input type="text" name="phone" placeholder="Phone"><br>
-   <input type="text" name="address" placeholder="Address"><br>
-   <input type="text" name="email" id="" placeholder="Email"> <br>
-   <input type="text" name="username" placeholder="username"><br>
-   <input type="text" name="password" placeholder="passsword"><br>
-    {{ form.as_p }}
-    <input type="submit" value="Register"><br>
-    <input type="reset" value="Clear">
-</form>
+<h1>login page</h1>
+<div class="form-container">
+ <form action=" " method='post'>
+      {% csrf_token %}
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username"><br>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password"><br><br>
+      <input type="submit" value="admin_login"></input> 
+ </form> 
+  </div>
 </body>
 </html>
