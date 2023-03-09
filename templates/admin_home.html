@@ -10,18 +10,22 @@
 </ul>
 {% endif %}
 {% csrf_token %}
-<h1>Welcome to {{ user.username }}</h1>
+
+
+<h4 class="text-success">Welcome Back</h4>
+<h1> {{ request.user.first_name }}{{request.user.last_name}}</h1>
 
 <form method="post" action="{% url 'register' %}">
     {% csrf_token %}
-    <button type="submit" value="register">Register</button>
+    <button type="submit" value="register.html">Register</button>
 </form>
 
 <h2>Enter date:</h2>
-<form method="post">
+<form method="post" action="{%url 'attendance_by_date'%}">
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit" value="attendance_by_date">Submit</button>
+  <button type="submit" value="attendance_by_date.html">Submit</button>
 </form>
+
 
 {%endblock content%}

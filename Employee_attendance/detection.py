@@ -1,27 +1,23 @@
 import numpy as np
 import cv2
-# from sklearn.externals
-
 import os
-# import sqlite3
-import numpy as np
 from PIL import Image
 from EmployeeAttendance.settings import BASE_DIR
 
-detector = cv2.CascadeClassifier(
-    BASE_DIR+'/Employee_attendance/haarcascade_frontalface_default.xml')
-recognizer = cv2.face.LBPHFaceRecognizer_create()
+face_recognizer = cv2.dnn.readNetFromTorch(BASE_DIR+'/Employee_attendance/openface.nn4.small2.v1.t7')
 
+# Load the Caffe face detection model
+modelFile = "Employee_attendance/res10_300x300_ssd_iter_140000.caffemodel"
+configFile = "Employee_attendance/deploy.prototxt.txt"
+net = cv2.dnn.readNetFromCaffe(configFile, modelFile)
 
+trained_face_recognizer = cv2.face.LBPHFaceRecognizer_create()
+trained_face_recognizer.read(BASE_DIR+'/Employee_attendance/trainer/trainer.yml')
 class FaceRecognition:
 
     def faceDetect(self, Entry1):
+        print("IN dace detection")
         emp_id = Entry1
-        # Load the Caffe face detection model
-        modelFile = "Employee_attendance/res10_300x300_ssd_iter_140000.caffemodel"
-        configFile = "Employee_attendance/deploy.prototxt.txt"
-        net = cv2.dnn.readNetFromCaffe(configFile, modelFile)
-
         # Start the video capture
         cap = cv2.VideoCapture(0)
 
@@ -70,49 +66,58 @@ class FaceRecognition:
                 break
 
     def trainFace(self):
+        print("In train face")
         # Path for face image database
         path = BASE_DIR+'/Employee_attendance/dataset'
-
-        # function to get the images and label data
         def getImagesAndLabels(path):
-
             imagePaths = [os.path.join(path, f) for f in os.listdir(path)]
             faceSamples = []
             ids = []
 
             for imagePath in imagePaths:
 
-                PIL_img = Image.open(imagePath).convert(
-                    'L')  # convert it to grayscale
-                img_numpy = np.array(PIL_img, 'uint8')
+                img = cv2.imread(imagePath)
 
-                emp_id = int(os.path.split(imagePath)[-1].split(".")[1])
-                print("emp_id", emp_id)
-                faces = detector.detectMultiScale(img_numpy)
+                # Detect faces in image
+                blob = cv2.dnn.blobFromImage(cv2.resize(
+                    img, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
+                face_detector.setInput(blob)
+                detections = face_detector.forward()
 
-                for (x, y, w, h) in faces:
-                    faceSamples.append(img_numpy[y:y+h, x:x+w])
-                    ids.append(emp_id)
+                # Extract face features and labels
+                for i in range(0, detections.shape[2]):
+                    confidence = detections[0, 0, i, 2]
+                    if confidence > 0.5:
+                        box = detections[0, 0, i, 3:7] * np.array(
+                            [img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
+                        (x, y, w, h) = box.astype("int")
+
+                        face = img[y:y+h, x:x+w]
+                        faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
+                                                        (96, 96), (0, 0, 0), swapRB=True, crop=False)
+
+                        face_recognizer.setInput(faceBlob)
+                        vec = face_recognizer.forward()
+
+                        faceSamples.append(vec.flatten())
+                        ids.append(int(os.path.split(imagePath)[-1].split(".")[1]))
 
             return faceSamples, ids
 
+            # Train face recognition model
         print("\n Training faces. It will take a few seconds. Wait ...")
         faces, ids = getImagesAndLabels(path)
-        recognizer.train(faces, np.array(ids))
+        face_recognizer.train(faces, cv2.ml.ROW_SAMPLE, np.array(ids))
 
-        # Save the model into trainer/trainer.yml
-        # recognizer.save() worked on Mac, but not on Pi
-        recognizer.save(BASE_DIR+'/Employee_attendance/trainer/trainer.yml')
+            # Save the model
+        face_recognizer.save(BASE_DIR+'/Employee_attendance/trainer/trainer.xml')
+        print("model saved")
 
-        # Print the numer of faces trained and end program
-        print("\n {0} faces trained. Exiting Program".format(
-            len(np.unique(ids))))
+            # Print the number of faces trained
+        print("\n {0} faces trained. Exiting Program".format(len(np.unique(ids))))
 
+    
     def recognizeFace(self):
-        recognizer.read(BASE_DIR+'/Employee_attendance/trainer/trainer.yml')
-        cascadePath = BASE_DIR+'/Employee_attendance/haarcascade_frontalface_default.xml'
-        faceCascade = cv2.CascadeClassifier(cascadePath)
-
         font = cv2.FONT_HERSHEY_SIMPLEX
 
         confidence = 0
@@ -121,47 +126,67 @@ class FaceRecognition:
         # Define min window size to be recognized as a face
         minW = 0.1*cam.get(3)
         minH = 0.1*cam.get(4)
-
+        THRESHOLD=0.6
         while True:
-
+            
             ret, img = cam.read()
 
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # Detect faces using the face detection network
+            blob = cv2.dnn.blobFromImage(cv2.resize(img, (300, 300)), 1.0,
+                                        (300, 300), (104.0, 177.0, 123.0))
+            net.setInput(blob)
+            detections = net.forward()
 
-            faces = faceCascade.detectMultiScale(
-                gray,
-                scaleFactor=1.2,
-                minNeighbors=5,
-                minSize=(int(minW), int(minH)),
-            )
+            for i in range(0, detections.shape[2]):
+                confidence = detections[0, 0, i, 2]
 
-            for (x, y, w, h) in faces:
+                if confidence > 0.5:
+                    # Get the bounding box of the face
+                    box = detections[0, 0, i, 3:7] * np.array([img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
+                    (x, y, w, h) = box.astype("int")
 
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                    # Check if face is large enough to be recognized
+                    if w >= minW and h >= minH:
+                        # Recognize the face using the face recognition model
+                        face = img[y:y + h, x:x + w]
+                        faceBlob = cv2.dnn.blobFromImage(cv2.resize(face, (96, 96)), 1.0 / 255,
+                                                        (96, 96), (0, 0, 0), swapRB=True, crop=False)
+                        face_recognizer.setInput(faceBlob)
+                        vec = face_recognizer.forward()
 
-                emp_id, confidence = recognizer.predict(gray[y:y+h, x:x+w])
+                        # Compare with dataset
+                        dataset_path = BASE_DIR+'/Employee_attendance/dataset'
+                        min_distance = float("inf")
+                        best_match_id = None
+                        for filename in os.listdir(dataset_path):
+                            if filename.endswith('.jpg'):
+                                # Load image and compute embedding
+                                image = cv2.imread(os.path.join(dataset_path, filename))
+                                imageBlob = cv2.dnn.blobFromImage(cv2.resize(image, (96, 96)), 1.0 / 255,
+                                                                (96, 96), (0, 0, 0), swapRB=True, crop=False)
+                                face_recognizer.setInput(imageBlob)
+                                imageVec = face_recognizer.forward()
 
-                # Check if confidence is less then 100 ==> "0" is perfect match
-                if (confidence < 100):
-                    name = 'Detected'
-                else:
-                    name = "Unknown"
+                                # Compute Euclidean distance between embeddings
+                                distance = np.linalg.norm(vec - imageVec)
 
-                cv2.putText(img, str(name), (x+5, y-5),
-                            font, 1, (255, 255, 255), 2)
-                cv2.putText(img, str(confidence), (x+5, y+h-5),
-                            font, 1, (255, 255, 0), 1)
+                                # Update closest match
+                                if distance < min_distance:
+                                    min_distance = distance
+                                    best_match_id = os.path.splitext(filename)[0].split('.')[1]
+                                print(best_match_id)
 
-            cv2.imshow('Detect Face', img)
+                        # Draw the bounding box and label
+                        if min_distance < THRESHOLD:
+                            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                            cv2.putText(img, best_match_id, (x+5, y-5), font, 1, (255, 255, 255), 2)
+                            cv2.putText(img, str(min_distance), (x+5, y+h-5), font, 1,(255,255,255),2)
+                            cv2.imshow('Recognizing Face', img)
 
-            k = cv2.waitKey(10) & 0xff  # Press 'ESC' for exiting video
-            if k == 27:
+                                # Exit on pressing 'q'
+            if cv2.waitKey(1) == ord('q'):
                 break
-            if confidence > 50:
-                break
 
-        print("\n Exiting Program")
-        cam.release()
-        cv2.destroyAllWindows()
-        print(emp_id)
-        return emp_id
+            cam.release()
+            cv2.destroyAllWindows()
+            return best_match_id

@@ -1,43 +1,55 @@
-from django.shortcuts import render,redirect
-from .forms import *
-from django.contrib import messages,auth
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from .forms import AdminForm, LoginForm
+from .models import Admin,User
+from django.contrib.auth.decorators import login_required
 
 
 def admin_signup(request):
     if request.method == 'POST':
         form = AdminForm(request.POST)
         if form.is_valid():
-            form.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            messages.success(request, f'Your account has been created ! You are now able to log in')
-            form.save()
-            return redirect('admin_login')
+            email=form.cleaned_data.get('email')
+            first_name=form.cleaned_data.get('first_name')
+            last_name=form.cleaned_data.get('last_name')
+            user=User.objects.create_user(username=username,password=password,email=email,last_name=last_name,first_name=first_name,user_type=1)
+            messages.success(request, f'Account created for {username}!')
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('admin_home')
     else:
         form = AdminForm()
     return render(request, 'admin_signup.html', {'form': form})
-  
+
 
 def admin_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        try:
-            admin = Admin.objects.get(username=username)
-            if admin.password == password:
-                request.session['admin_id'] = admin.id
-                return redirect('admin_home',username)
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.user_type=="1":
+                login(request, user)
+                return redirect('admin_home')
             else:
-                messages.error(request, 'Invalid email or password')
-        except Admin.DoesNotExist:
-            messages.error(request, 'Invalid email or password')
-    return render(request, 'admin_login.html')
+                form.add_error(None, 'Invalid username or password')
+            
+    else:
+        form = LoginForm()
+    errors = []
+    for field in form:
+        if field.errors:
+            errors.append(field.errors)
+    print(errors)
+    return render(request, 'admin_login.html', {'form': form})
 
-def admin_home(request,username):
-    username = username
-    context ={
-        'user' : Admin.objects.get(username = username)
-    }
-    return render(request,'admin_home.html',context=context)
+
+
+@login_required(login_url='admin_login')
+def admin_home(request):
+    return render(request,'admin_home.html')
