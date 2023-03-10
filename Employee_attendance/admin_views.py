@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import AdminForm, LoginForm
 from .models import Admin,User
+from .views import *
 from django.contrib.auth.decorators import login_required
 
 
@@ -35,7 +36,7 @@ def admin_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None and user.user_type=="1":
                 login(request, user)
-                return redirect('admin_home')
+                return redirect('home')
             else:
                 form.add_error(None, 'Invalid username or password')
             
@@ -53,3 +54,7 @@ def admin_login(request):
 @login_required(login_url='admin_login')
 def admin_home(request):
     return render(request,'admin_home.html')
+
+def admin_logout(request):
+    logout(request)
+    return redirect('admin_login')

@@ -3,6 +3,7 @@ from .detection import FaceRecognition
 # from .attendance_views import AttendanceManager
 from .forms import *
 from django.contrib import messages
+from . employee_views import employee_home
 from .admin_views import *
 
 faceRecognition = FaceRecognition()
@@ -11,25 +12,6 @@ attendance = Attendance()
 
 def home(request):
     return render(request, 'home.html')
-
-
-# def register(request):
-#     if request.method == "POST":
-#         form = EmployeeForm(request.POST or None)
-#         if form.is_valid():
-#             employee=form.save()
-#             print(employee)
-#             print("IN HERE")
-#             messages.success(request, "SuceessFully registered")
-#             addFace(int(request.POST['emp_id']))
-#             return redirect('home')
-#         else:
-#             print("form errors",form.errors)
-#             messages.error(request, "Account registered failed")
-#     else:
-#         form = EmployeeForm()
-
-#     return render(request, 'register.html', {'form': form})
 
 def register(request):
     if request.method=="POST":
@@ -57,20 +39,4 @@ def addFace(emp_id):
         faceRecognition.trainFace()
     except:
         print("Error occured")
-    # return redirect('/')
 
-
-# def scan(request):
-#     emp_id = faceRecognition.recognizeFace()
-#     print(emp_id)
-#     AttendanceManager().markAttendance(emp_id)
-#     print("attendance marked")
-#     return redirect('greeting', emp_id)
-
-
-# def Greeting(request, emp_id):
-#     emp_id = emp_id
-#     context = {
-#         'user': Employee.objects.get(emp_id=emp_id)
-#     }
-#     return render(request, 'greeting.html', context=context)

@@ -10,6 +10,7 @@ from .detection import *
 from django.http import JsonResponse
 from django.http import HttpResponse
 
+
 faceRecognition=FaceRecognition()
 
 
