@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!-- 
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% csrf_token %} -->
+
+
+<h4 class="text-success">Welcome Back</h4>
+<h1> {{ request.user.first_name }}{{request.user.last_name}}</h1>
+
+<form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+    <button type="submit" value="register.html">Register</button>
+</form>
+
+<h2>Enter date:</h2>
+<form method="post" action="{%url 'attendance_by_date'%}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" value="attendance_by_date.html">Submit</button>
+</form>
+
+
+{%endblock content%}

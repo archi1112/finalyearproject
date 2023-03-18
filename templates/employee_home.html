@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    
+</body>
+</html>
+{% if user.is_authenticated %}
+<p>Employee Home <a href="{% url 'markAttendance' %}">mark attendance</a></p> <br>
+<a href="{% url 'currentEmployeeAttendance' %}">view attendance</a>
+
+{% else %}
+    <p>You are not signed in.</p>
+{% endif %}

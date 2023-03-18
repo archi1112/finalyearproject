@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Attendance details for {{ date }}:</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in attendance %}
+      <tr>
+        <td>{{ a.employee.emp_id }}</td>
+        <td>{{ 'Present' if a.status else 'Absent' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+
