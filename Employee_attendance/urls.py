@@ -21,8 +21,11 @@ urlpatterns = [
     path('admin_logout/', admin_logout, name='admin_logout'),
     path('attendancebydate/',
          attendance_by_date, name='attendance_by_date'),
-    path('currentEmployeeAttendance', currentEmployeeAttendance,
+    path('currentEmployeeAttendance/', login_required(currentEmployeeAttendance),
          name='currentEmployeeAttendance'),
+    path('admin_view/', attendance_view, name='admin_view'),
+    path('process_voice_recognition', process_voice_recognition,
+         name='process_voice_recognition'),
 
     path('recordvoice/<emp_id>', recordvoice, name='recordvoice')
 

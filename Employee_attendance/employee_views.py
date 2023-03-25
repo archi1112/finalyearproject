@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
-from  .views import *
+from .views import *
 from django.contrib import messages
 # from .views import home
 
@@ -12,24 +12,26 @@ from django.contrib import messages
 def employee_home(request):
     return render(request, 'employee_home.html')
 
+
 def employee_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            print(username,password)
+            print(username, password)
             user = User.objects.filter(username=username).first()
-            print("user=",user)
-            if user is not None and user.user_type=="2":
+            print("user=", user)
+            if user is not None and user.user_type == "2":
                 # if user.check_password(password):
-                if user.username==username and user.password==password:
-                    print("Logging in")
+                if user.username == username and user.password == password:
                     login(request, user)
+                    messages.success(request, "Logged in successfully")
                     return redirect('home')
             else:
+                messages.error(request, 'Invalid username or password')
                 form.add_error(None, 'Invalid username or password')
-            
+
     else:
         form = LoginForm()
     errors = []

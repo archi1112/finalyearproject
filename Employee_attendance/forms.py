@@ -3,8 +3,6 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import *
 from django.contrib.auth import get_user_model
 
-
-
 class EmployeeForm( forms.ModelForm):
     emp_id=forms.IntegerField(label="EMployee ID",widget=forms.TextInput(attrs={"class": "form-control"}))
     address = forms.CharField(label="Address", max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
@@ -14,16 +12,6 @@ class EmployeeForm( forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ['emp_id','first_name', 'last_name', 'email', 'username','password', 'address','gender']
-
-# class AttendanceForm(forms.ModelForm):
-#     class Meta:
-#         model = Attendance
-#         fields = [
-#             'emp_id',
-#             'username',
-#             'status'
-#         ]
-
 
 class AdminForm(forms.ModelForm):
     first_name = forms.CharField(label="First Name", max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))

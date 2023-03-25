@@ -1,74 +1,161 @@
-<!-- base.html -->
 <!DOCTYPE html>
-<html>
-<head>
-	<title>My Website</title>
-	<style>
-		body {
-			margin-top: 67px; /* set the margin-top to 67px for the navbar */
-		}
-		nav {
-			background-color: #333; /* set the background color of the navbar */
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 60px; /* set the height of the navbar */
-			display: flex; /* set the display property of the navbar to flex */
-			align-items: center; /* vertically align the items in the navbar */
-			justify-content: space-between; /* distribute the items horizontally */
-			padding: 0 20px; /* add some padding to the left and right */
-		}
-		nav ul {
-			list-style: none; /* remove the default bullet points for the list */
-			display: flex; /* set the display property of the list to flex */
-			margin: 0;
-			padding: 0;
-		}
-		nav li {
-			margin: 0 10px; /* add some margin between the list items */
-		}
-		nav a {
-			color: #fff; /* set the color of the links */
-			text-decoration: none; /* remove the underline from the links */
-			font-weight: bold;
-			font-size: 18px;
-			transition: all 0.3s ease;
-			padding: 10px;
-			border-radius: 5px;
-		}
-		nav a:hover {
-			background-color: #fff;
-			color: #333;
-		}
-	</style>
-</head>
-<body>
-	<nav>
-		<ul>
-			{% if user.is_authenticated %}
-				{% if user.user_type == "1" %}
-					<h1>{{user.username}}</h1>
-					<li><a href="{% url 'home' %}">Home</a></li>
-					<li><a href="{% url 'register' %}">Register Employee</a></li>
-					<li><a href="{% url 'admin_logout' %}">logout</a></li>
-					
-				{% elif user.user_type == "2"  %}
-					<li><a href="{% url 'home' %}">Home</a></li>
-					<li><a href="{% url 'markAttendance' %}">mark attendance</a></li>
-                    <li><a href="{% url 'currentEmployeeAttendance' %}">view attendance</a></li>
-					<li><a href="{%url 'employee_logout'%}">logout</a></li>
-				{% endif %}
-			{% else %}
-				<li><a href="{% url 'home' %}">Home</a></li>
-				<li><a href="{% url 'admin_login' %}">Admin Login</a></li>
-				<li><a href="{% url 'employee_login' %}">Employee Login</a></li>
-			{% endif %}
-		</ul>
-	</nav>
 
-	{% block content %}
-		<!-- This is where the content from the child templates will be inserted -->
-	{% endblock %}
-</body>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Infant&family=Montserrat:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <title>My Website</title>
+  </head>
+
+  <body>
+    <style>
+      body {
+        font-family: "Cormorant Infant", serif;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .navbar-nav li:hover {
+        background-color: blue;
+
+        border-radius: 20px;
+      }
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-success bg-light">
+      {% comment %} <a class="navbar-brand" href="#">Navbar</a> {% endcomment %}
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation "
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          {% if user.is_authenticated %} {% if user.user_type == "1" %}
+
+          <h1>{{user.username}}</h1>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Home</a>
+            <span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Register Employee</a
+            ><span class="sr-only">(current)</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin_view' %}">View Attendance</a
+            ><span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin_logout' %}">logout</a>
+            <span class="sr-only">(current)</span>
+          </li>
+
+          {% elif user.user_type == "2" %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Home</a>
+            <span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'markAttendance' %}"
+              >mark attendance</a
+            >
+            <span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'currentEmployeeAttendance' %}"
+              >view attendance</a
+            >
+            <span class="sr-only">(current)</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'employee_logout' %}">Logout</a>
+            <span class="sr-only">(current)</span>
+          </li>
+
+          {% endif %} {% else %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Home</a
+            ><span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin_login' %}">Admin Login</a
+            ><span class="sr-only">(current)</span>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'employee_login' %}"
+              >Employee Login</a
+            ><span class="sr-only">(current)</span>
+          </li>
+
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    {% for message in messages %}
+    <div
+      class="alert alert-{{ message.tags }} alert-dismissible fade show"
+      role="alert"
+    >
+      <strong>Message : </strong> {{ message }}
+      <button
+        type="button"
+        class="close"
+        data-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endfor %} {% block content %}
+
+    <!-- This is where the content from the child templates will be inserted -->
+
+    {% endblock %}
+  </body>
 </html>

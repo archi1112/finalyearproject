@@ -1,0 +1,113 @@
+{% extends 'home.html' %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Employee Attendance</title>
+    <style type="text/css">
+      .table-fixed tbody {
+        height: 300px;
+        overflow-y: auto;
+        width: 100%;
+      }
+
+      .table-fixed thead,
+      .table-fixed tbody,
+      .table-fixed tr,
+      .table-fixed td,
+      .table-fixed th {
+        display: block;
+      }
+
+      .table-fixed tbody td,
+      .table-fixed tbody th,
+      .table-fixed thead > tr > th {
+        float: left;
+        position: relative;
+
+        &::after {
+          content: "";
+          clear: both;
+          display: block;
+        }
+      }
+
+      body {
+        background: #74ebd5;
+        background: -webkit-linear-gradient(to right, #74ebd5, #acb6e5);
+        background: linear-gradient(to right, #74ebd5, #acb6e5);
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% block content %}
+    <div class="container text-center text-black">
+      <div class="row pt-5">
+        <div class="col-lg-8 mx-auto">
+          <h1 class="display-4">Employee Attendance</h1>
+          <form method="post" class="d-flex justify-content-between flex-wrap">
+            {% csrf_token %}
+            <div class="form-group col-md-5 m-2">
+              <label for="employee_id">Employee ID:</label>
+              <input
+                type="text"
+                placeholder="Employee ID"
+                class="form-control"
+                name="employee_id"
+              />
+            </div>
+            <div class="form-group col-md-5 m-2">
+              <label for="start_date">Start Date:</label>
+              <input type="date" class="form-control" name="start_date" />
+            </div>
+            <div class="form-group col-md-5 m-2">
+              <label for="end_date">End Date:</label>
+              <input type="date" class="form-control" name="end_date" />
+            </div>
+            <div class="form-group col-md-2 mt-4 m-2">
+              <button type="submit" class="btn btn-dark btn-block">
+                Filter
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-7 mx-auto bg-white rounded shadow">
+          {% if attendances is not None %}
+          <div class="table-responsive">
+            <table class="table table-fixed">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-4">Employee ID</th>
+                  <th scope="col" class="col-4">Date</th>
+                  <th scope="col" class="col-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in attendances %}
+                <tr>
+                  <td>{{record.emp_id}}</td>
+                  <td>{{ record.date }}</td>
+                  {% if record.status %}
+                  <td>Present</td>
+                  {% else %}
+                  <td>Absent</td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-center py-3">No attendance records found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+  </body>
+</html>
