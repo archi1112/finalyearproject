@@ -25,6 +25,10 @@
         font-family: "Montserrat", sans-serif;
       }
 
+      .navbar-toggler {
+        background-color: grey;
+      }
+
       .navbar-nav li:hover {
         background-color: blue;
 
@@ -32,7 +36,7 @@
       }
     </style>
 
-    <nav class="navbar navbar-expand-lg navbar-success bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
       {% comment %} <a class="navbar-brand" href="#">Navbar</a> {% endcomment %}
 
       <button
@@ -48,7 +52,7 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+        <ul class="navbar-nav ml-auto">
           {% if user.is_authenticated %} {% if user.user_type == "1" %}
 
           <h1>{{user.username}}</h1>
@@ -137,23 +141,30 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
-    {% for message in messages %}
-    <div
-      class="alert alert-{{ message.tags }} alert-dismissible fade show"
-      role="alert"
-    >
-      <strong>Message : </strong> {{ message }}
-      <button
-        type="button"
-        class="close"
-        data-dismiss="alert"
-        aria-label="Close"
-      >
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    {% endfor %} {% block content %}
 
+    {% for message in messages %}
+    <div class="container-fluid p-0">
+      <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        {{ message }}
+      </div>
+    </div>
+    {% endfor %}
+
+    <script>
+      // Hide alert after 5 seconds
+      setTimeout(function () {
+        $(".alert").alert("close");
+      }, 10000);
+    </script>
+    {% block content%}
     <!-- This is where the content from the child templates will be inserted -->
 
     {% endblock %}

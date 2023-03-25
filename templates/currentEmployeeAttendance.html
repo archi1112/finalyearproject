@@ -1,9 +1,5 @@
-{% extends 'home.html' %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Employee Attendance</title>
-    <style type="text/css">
+{% extends 'base.html' %}
+    {% comment %} <style type="text/css">
         .table-fixed tbody {
             height: 300px;
             overflow-y: auto;
@@ -40,9 +36,8 @@
         }
 
 
-    </style>
-</head>
-<body>
+    </style> {% endcomment %}
+
     {% block content %}
     <div class="container text-center text-black">
         <div class="row pt-5">
@@ -72,10 +67,10 @@
     <div class="container py-5">
     <div class="row">
         <div class="col-lg-7 mx-auto bg-white rounded shadow">
-            <div class="table-responsive">
+            <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar" style="overflow-x:auto;">
             {% if attendance is None %}
-                <table class="table table-fixed">
-                    <thead>
+                <table class="table  table-fixed table-striped">
+                    <thead class="thead-dark">
                         <tr>
                             <th scope="col" class="col-4">Employee ID</th>
                             <th scope="col" class="col-4">Date</th>

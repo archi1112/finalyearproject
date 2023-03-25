@@ -1,16 +1,14 @@
+{% extends 'base.html' %} {%block content%}
 
-<html>
-    <body>
-        <button id="recognize-voice-btn">Recognize voice</button>
-        <script>
-            document.getElementById('recognize-voice-btn').addEventListener('click', function() {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{% url 'process_voice_recognition' %}');
-                xhr.onload = function() {
-                    alert(xhr.responseText);
-                };
-                xhr.send();
-            });
-        </script>
-    </body>
-</html>
+<button id="recognize-voice-btn">Recognize voice</button>
+<script>
+  document.getElementById('recognize-voice-btn').addEventListener('click', function() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '{% url 'process_voice_recognition' %}');
+      xhr.onload = function() {
+          alert(xhr.responseText);
+      };
+      xhr.send();
+  });
+</script>
+{%endblock%}

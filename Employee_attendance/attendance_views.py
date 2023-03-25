@@ -14,6 +14,7 @@ from django.http import HttpResponse
 
 faceRecognition = FaceRecognition()
 
+
 @login_required
 def currentEmployeeAttendance(request):
     # get the currently logged in employee
@@ -22,33 +23,38 @@ def currentEmployeeAttendance(request):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
         # get the attendance records for the employee
-        attendance = Attendance.objects.filter(emp_id=employee, date__range=(start_date, end_date))
+        attendance = Attendance.objects.filter(
+            emp_id=employee, date__range=(start_date, end_date))
     else:
         attendance = Attendance.objects.filter(emp_id=employee)
-    
+
     # pass the attendance records and employee to the template
     context = {
         'attendance_data': attendance,
         'employee': employee
     }
-    
+
     # render the template with the context
     return render(request, 'currentEmployeeAttendance.html', context)
 
 # changes require
+
+
 def attendance_view(request):
     if request.method == 'POST':
         employee_id = request.POST['employee_id']
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
-        attendances = Attendance.objects.filter(emp_id=employee_id, date__range=(start_date, end_date))
-        
+        attendances = Attendance.objects.filter(
+            emp_id=employee_id, date__range=(start_date, end_date))
+
     else:
         attendances = Attendance.objects.all()
-    
+
     context = {'attendances': attendances}
-    
+
     return render(request, 'admin_view.html', context)
+
 
 def attendance_by_date(request):
     if request.method == 'POST':
@@ -69,8 +75,10 @@ def attendance_by_date(request):
         }
         return render(request, 'admin_home.html', context)
 
+
 def markAttendance(request):
     emp_id = faceRecognition.recognizeFace()
+    print("after face", emp_id)
     if emp_id == None:
         return HttpResponse('Employee does not exist')
 
@@ -79,14 +87,22 @@ def markAttendance(request):
 
 def process_voice_recognition(request):
     emp_id = recognisevoice(request)
+    print("after voice", emp_id)
     try:
         employee = Employee.objects.get(emp_id=emp_id)
+        print(employee)
         attendance, created = Attendance.objects.get_or_create(
             emp_id=employee, date=date.today())
-        if not attendance.status:
+        print(attendance)
+        if not created:
+            messages.error(request, "attendance already marked")
+            return HttpResponse("already marked attendance")
+        else:
             attendance.status = True
             attendance.save()
-        return HttpResponse('Attendance marked for employee ID: {}'.format(emp_id))
+            messages.success(request, "attendance marked")
+            return HttpResponse('Attendance marked for employee ID: {}'.format(emp_id))
+
     except Employee.DoesNotExist:
         return HttpResponse('Employee does not exist')
 
@@ -97,6 +113,3 @@ def Greeting(request, emp_id):
         'user': Employee.objects.get(emp_id=emp_id)
     }
     return render(request, 'greeting.html', context=context)
-
-
-
